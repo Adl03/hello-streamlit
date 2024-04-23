@@ -13,39 +13,54 @@
 # limitations under the License.
 
 import streamlit as st
-from streamlit.logger import get_logger
-
-LOGGER = get_logger(__name__)
-
-
-def run():
-    st.set_page_config(
-        page_title="Hello",
-        page_icon="👋",
-    )
-
-    st.write("# Welcome to Streamlit! 👋")
-
-    st.sidebar.success("Select a demo above.")
-
-    st.markdown(
-        """
-        Streamlit is an open-source app framework built specifically for
-        Machine Learning and Data Science projects.
-        **👈 Select a demo from the sidebar** to see some examples
-        of what Streamlit can do!
-        ### Want to learn more?
-        - Check out [streamlit.io](https://streamlit.io)
-        - Jump into our [documentation](https://docs.streamlit.io)
-        - Ask a question in our [community
-          forums](https://discuss.streamlit.io)
-        ### See more complex demos
-        - Use a neural net to [analyze the Udacity Self-driving Car Image
-          Dataset](https://github.com/streamlit/demo-self-driving)
-        - Explore a [New York City rideshare dataset](https://github.com/streamlit/demo-uber-nyc-pickups)
-    """
-    )
+import pandas as pd
+from matplotlib import pyplot as plt
+from datetime import time, datetime
+import yfinance as yf
 
 
-if __name__ == "__main__":
-    run()
+st.title('My financial dashboard')
+st.write('Financial analysis of Google stock')
+def plot_my_df(values):
+  fig, ax = plt.subplots()
+  plt.xticks(rotation = 90)
+  ax.plot(values, color = 'green', label = 'Open price')
+  ax.legend()
+  st.pyplot(fig)
+  
+start_time = st.slider(
+     "When do you start?",
+     min_value=datetime(2020, 1, 1),
+     max_value=datetime(2022, 1, 1),
+     format="MM/DD/YY")
+
+end_time = st.slider(
+     "When do you end?",
+     min_value=start_time,
+     max_value=datetime(2024, 1, 1),
+     format="MM/DD/YY")
+
+stock_name = st.selectbox(
+     'Select the stock name',
+     ('GOOGL', 'AAPL', 'TSLA', 'AMD'))
+# Download Google stock data
+
+google_stock = yf.download(stock_name, start = start_time, end= end_time)
+
+st.subheader('Visualize the dataframe')
+st.write(google_stock)
+
+
+if st.button('Plot the open price'):
+     plot_my_df(google_stock['Open'])
+
+
+
+st.subheader('Visualize the summary for each column')
+summary_df = google_stock.agg(["min", "max", "mean"])
+st.write(summary_df)
+
+
+
+
+
